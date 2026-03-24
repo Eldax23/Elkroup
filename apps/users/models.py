@@ -5,10 +5,13 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+    email = models.EmailField(unique=True)
     bio = models.TextField(blank=True)
     profile_pic = models.ImageField(upload_to='profiles/' , blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
+    USERNAME_FIELD =  'email'
+    REQUIRED_FIELDS = ['username']
 
 # each User uploads -> many posts
 
@@ -20,7 +23,7 @@ class Post(models.Model):
 
 
 
-# for each like there is: there was somebody who liked the post (USER)
+# for each like there is: somebody who liked the post (USER)
 # and the post itself (POST)
 class Like(models.Model):
     user = models.ForeignKey(User , on_delete=models.CASCADE)
@@ -29,7 +32,6 @@ class Like(models.Model):
 
 # same thing for comment but there is the comment content itself
 # and the date it was created
-
 class Comment(models.Model):
     content = models.TextField()
     user = models.ForeignKey(User , on_delete=models.CASCADE)
