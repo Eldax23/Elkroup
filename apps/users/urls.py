@@ -1,8 +1,18 @@
 from django.urls import path
-from .views import PostListCreateAPI , UserListCreateAPI
+from . import views
+
+from rest_framework_simplejwt.views import TokenObtainPairView , TokenRefreshView
 
 
 urlpatterns = [
-    path('users' , UserListCreateAPI.as_view()),
-    path('users/posts' , PostListCreateAPI.as_view())
+    # auth
+    path('auth/register/' , views.RegisterView.as_view() , name='register'),
+    path('auth/login/' , TokenObtainPairView.as_view() , name = 'login'),
+    path('auth/refresh/' , TokenRefreshView.as_view() , name = 'refresh_token'),
+    path('auth/logout/' , views.logout_view),
+    # profile
+    # path('')
+
+    # posts
+    path('users/posts' , views.PostListCreateAPI.as_view() , name='posts')
 ]
