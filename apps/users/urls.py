@@ -10,8 +10,9 @@ urlpatterns = [
     path('auth/login/' , TokenObtainPairView.as_view() , name = 'login'),
     path('auth/refresh/' , TokenRefreshView.as_view() , name = 'refresh_token'),
     path('auth/logout/' , views.logout_view),
-    # profile
-    # path('')
+    # profiles
+    path('users/myprofile/' , views.MyProfileView.as_view() , name = 'my_profile'),
+    path('users/<str:username>/' , views.UserProfileView.as_view() , name ='profile'),
 
     # posts
     path('users/posts' , views.PostListCreateAPI.as_view() , name='posts')

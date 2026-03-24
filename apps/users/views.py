@@ -20,9 +20,6 @@ class PostListCreateAPI(generics.ListCreateAPIView):
 
 
 
-
-
-
 # this serializer is only for registering users to the system
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -62,8 +59,47 @@ def logout_view(request):
         return Response({'message': "Invalid Token"} , status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+
+
+
 # later after registering the user u can update the profile
 class UpdateProfileView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UpdateProfileSerializer
     lookup_field = 'pk'
+
+
+
+# this is when the user goes to his profile , he can either 
+# 1- update his profile
+# 2- just check his profile details 
+# it depends on the request type
+
+class MyProfileView(generics.RetrieveUpdateAPIView):
+    def get_serializer_class(self):
+        # we check the request type
+        if(self.request.method == 'PUT'):
+            # if its a PUT request then we use the appropriate serializer
+            return UpdateProfileSerializer
+        
+        # otherwise since its not a PUT request we just want the details
+        return UserSerializer
+    
+
+    # we override the get_object method to automatically detect the 
+    # currently logged in user and get the instance which we will 
+    # do all the work on
+
+
+    def get_object(self):
+        return self.request.user
+
+
+
+class UserProfileView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'username'
