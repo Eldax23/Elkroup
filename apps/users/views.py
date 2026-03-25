@@ -132,3 +132,22 @@ def follow_toggle(request , username):
     # otherwise he wants to follow the person   
     Follow.objects.create(follower=request.user , following=person_to_follow)
     return Response({'following': True})
+
+
+# get list of followers of that user
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def followers_list(request , username):
+    user = get_object_or_404(User , username=username)
+    # go to the follow table and fetch all the people that are following this user
+    followers = User.objects.filter(following__following=user)
+    serializer = UserSerializer(followers , many=True, context={'request':request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def following_list(request , username):
+    user = get_object_or_404(User , username=username)
+    following = User.objects.filter(followers_follower = user)
+    serializer = UserSerializer(following,many=True, context={'request':request})

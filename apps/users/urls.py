@@ -14,6 +14,8 @@ urlpatterns = [
     path('users/myprofile/' , views.MyProfileView.as_view() , name = 'my_profile'),
     path('users/<str:username>/' , views.UserProfileView.as_view() , name ='profile'),
 
+    # following
+
     # posts
     path('users/posts' , views.PostListCreateAPI.as_view() , name='posts')
 ]
