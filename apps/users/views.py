@@ -4,10 +4,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view , permission_classes
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
-from .models import Post , User
+from .models import Post , User , Follow
 
 from .serializers import PostSerializer , UserSerializer , RegisterSerializer , UpdateProfileSerializer
 
@@ -103,3 +104,31 @@ class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'username'
+
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+# this request is initiaited from the currently logged in user
+# the username of the person to follow
+# this is a toggle ,  meaning if he was already following he will unfollow and the opposite
+def follow_toggle(request , username):
+    person_to_follow = get_object_or_404(User , username=username)
+    
+    # meaning he tried to follow himself
+    if person_to_follow == request.user:
+        return Response({"detail": "you can't follow yourself"})
+    
+    # check if he is already following
+    follow = Follow.objects.filter(follower=request.user ,
+         following=person_to_follow).first()
+    
+    if follow:
+        # if he is following , unfollow.
+        follow.delete()
+        return Response({'following': False})
+    
+
+    # otherwise he wants to follow the person   
+    Follow.objects.create(follower=request.user , following=person_to_follow)
+    return Response({'following': True})
