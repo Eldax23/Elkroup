@@ -26,29 +26,6 @@ class User(AbstractUser):
 
 # each User uploads -> many posts (one to many)
 
-class Post(models.Model):
-    author = models.ForeignKey(User , on_delete=models.CASCADE)
-    content = models.TextField()
-    image = models.ImageField(upload_to='posts/' , blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-# user -> likes (one to many)
-# for each like there is: somebody who liked the post (USER)
-# and the post itself (POST)
-class Like(models.Model):
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
-    post = models.ForeignKey(Post , on_delete=models.CASCADE)
-
-# user -> many comments (one to many)
-# same thing for comment but there is the comment content itself
-# and the date it was created
-class Comment(models.Model):
-    content = models.TextField()
-    user = models.ForeignKey(User , on_delete=models.CASCADE)
-    post = models.ForeignKey(Post , on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
 
 
 # follow table has 2 columns

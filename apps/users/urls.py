@@ -19,6 +19,4 @@ urlpatterns = [
     path('users/<str:username>/followers/' , views.followers_list , name='followers'),
     path('users/<str:username>/following/' , views.following_list , name='following'),
 
-    # posts
-    path('users/posts' , views.PostListCreateAPI.as_view() , name='posts')
 ]
