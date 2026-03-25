@@ -56,8 +56,8 @@ class Comment(models.Model):
 # 2- the following which is also a user (linked to the user table)
 
 class Follow(models.Model):
-    follower = models.ForeignKey(User , on_delete=models.CASCADE , related_name="follower")
-    following = models.ForeignKey(User , on_delete=models.CASCADE , related_name="following")
+    follower = models.ForeignKey(User , on_delete=models.CASCADE , related_name="following")
+    following = models.ForeignKey(User , on_delete=models.CASCADE , related_name="followers")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -149,5 +149,6 @@ def followers_list(request , username):
 @permission_classes([permissions.IsAuthenticated])
 def following_list(request , username):
     user = get_object_or_404(User , username=username)
-    following = User.objects.filter(followers_follower = user)
+    following = User.objects.filter(followers__follower=user)
     serializer = UserSerializer(following,many=True, context={'request':request})
+    return Response(serializer.data)
