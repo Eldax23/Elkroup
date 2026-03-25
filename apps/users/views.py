@@ -8,14 +8,12 @@ from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
-from .models import Post , User , Follow
+from .models import User , Follow
 
-from .serializers import PostSerializer , UserSerializer , RegisterSerializer , UpdateProfileSerializer
+from .serializers import UserSerializer , RegisterSerializer , UpdateProfileSerializer
 
 
-class PostListCreateAPI(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
+
 
 
 

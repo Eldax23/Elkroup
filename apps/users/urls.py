@@ -13,7 +13,6 @@ urlpatterns = [
     # profiles
     path('users/myprofile/' , views.MyProfileView.as_view() , name = 'my_profile'),
     path('users/<str:username>/' , views.UserProfileView.as_view() , name ='profile'),
-
     # following
     path('users/<str:username>/follow/' , views.follow_toggle , name='follow'),
     path('users/<str:username>/followers/' , views.followers_list , name='followers'),

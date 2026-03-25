@@ -1,12 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from .models import Post , User
+from .models import User
 
-
-class PostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):
