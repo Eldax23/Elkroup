@@ -13,7 +13,18 @@ class User(AbstractUser):
     USERNAME_FIELD =  'email'
     REQUIRED_FIELDS = ['username']
 
-# each User uploads -> many posts
+    # we now add 2 properties to show following , followers count
+    # they are more like shortcuts to get followers,folowing count easily
+
+    @property
+    def get_followers_count(self):
+        return self.followers.count()
+    
+    @property
+    def get_following_count(self):
+        return self.following.count()
+
+# each User uploads -> many posts (one to many)
 
 class Post(models.Model):
     author = models.ForeignKey(User , on_delete=models.CASCADE)
@@ -22,14 +33,14 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-
+# user -> likes (one to many)
 # for each like there is: somebody who liked the post (USER)
 # and the post itself (POST)
 class Like(models.Model):
     user = models.ForeignKey(User , on_delete=models.CASCADE)
     post = models.ForeignKey(Post , on_delete=models.CASCADE)
 
-
+# user -> many comments (one to many)
 # same thing for comment but there is the comment content itself
 # and the date it was created
 class Comment(models.Model):
@@ -37,3 +48,19 @@ class Comment(models.Model):
     user = models.ForeignKey(User , on_delete=models.CASCADE)
     post = models.ForeignKey(Post , on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+# follow table has 2 columns
+# 1- the follower which is a user (linked to the user table)
+# 2- the following which is also a user (linked to the user table)
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User , on_delete=models.CASCADE , related_name="follower")
+    following = models.ForeignKey(User , on_delete=models.CASCADE , related_name="following")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"
+
+
