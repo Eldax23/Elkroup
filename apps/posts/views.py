@@ -48,6 +48,9 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
         
         return PostSerializer
     
+    def get_queryset(self):
+        return Post.objects.all()
+    
     # def get_permissions(self):
     #     if self.request.method == 'POST':
     #         return [permissions.IsAuthenticated]
