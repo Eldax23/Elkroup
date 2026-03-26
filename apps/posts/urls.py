@@ -9,6 +9,7 @@ urlpatterns = [
     # posts
     path('posts/' , views.PostListCreateAPIView.as_view() , name='posts'),
     path('posts/<int:pk>/' , views.PostDetailView.as_view() , name='post-detail'),
+    path('posts/<int:pk>/like/' , views.like_toggle , name='like'),
     path('users/<str:username>/posts/' , views.UserPostsView.as_view() , name='user-post')
 
 
