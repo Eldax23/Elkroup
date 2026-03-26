@@ -1,8 +1,9 @@
 from django.shortcuts import render , get_object_or_404
 from rest_framework import generics , status , permissions
 from rest_framework.response import Response
+from rest_framework.decorators import api_view , permission_classes
 from .serializers import PostSerializer , CreatePostSerializer
-from .models import Post
+from .models import Post , Like
 
 
 from apps.users.models import User
@@ -85,5 +86,28 @@ class UserPostsView(generics.ListAPIView):
     def get_queryset(self):
         user = get_object_or_404(User , username=self.kwargs['username'])
         return Post.objects.filter(author=user).all()
+    
 
 
+
+
+
+
+# --------------------------- LIKES/COMMENTS -----------------------------------
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def like_toggle(request , pk):
+    post = get_object_or_404(Post , pk=pk)
+
+    # check if there is an instance of the user liking this post
+    like = Like.objects.filter(user=request.user , post=post).first()
+
+    # meaning he already liked this post and wants to remove it
+    if like:
+        like.delete()
+        return Response({"liked": False , "likes_count": post.likes_count} , status=status.HTTP_200_OK)
+    
+    # he didn't like this post and wants to like
+    Like.objects.create(user=request.user , post=post)
+    return Response({"liked": True , "likes_count": post.likes_count} , status=status.HTTP_200_OK)
