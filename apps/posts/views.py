@@ -127,3 +127,15 @@ class CommentListCreateView(generics.ListCreateAPIView):
         post = get_object_or_404(Post , pk=self.kwargs['pk'])
         serializer.save(user=self.request.user , post=self.post)
         
+
+
+# this view is responsible for viewing/editing/removing specific comments based on pk
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_permissions(self):
+        if self.request.method in ('PUT' , 'DELETE'):
+            return [permissions.IsAuthenticated , IsOwner()]
+        
+        return [permissions.IsAuthenticated()]
