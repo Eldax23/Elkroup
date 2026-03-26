@@ -1,8 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render , get_object_or_404
 from rest_framework import generics , status , permissions
 from rest_framework.response import Response
 from .serializers import PostSerializer , CreatePostSerializer
 from .models import Post
+
+
+from apps.users.models import User
 
 
 # Create your views here.
@@ -63,10 +66,20 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
+
+# allows the currently logged in user to delete , edit his own post
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
+# get the posts of a specific user based on his username
+class UserPostsView(generics.ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user = get_object_or_404(User , username=self.kwargs['username'])
+        return Post.objects.filter(author=user).all()
 
 
