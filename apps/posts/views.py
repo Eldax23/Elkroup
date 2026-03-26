@@ -47,15 +47,15 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
             return CreatePostSerializer
         
         return PostSerializer
-    
+   
     def get_queryset(self):
         return Post.objects.all()
     
-    # def get_permissions(self):
-    #     if self.request.method == 'POST':
-    #         return [permissions.IsAuthenticated]
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAuthenticated()]
         
-    #     return [permissions.AllowAny]
+        return [permissions.AllowAny()]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
