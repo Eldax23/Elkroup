@@ -77,7 +77,6 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 # get the posts of a specific user based on his username
 class UserPostsView(generics.ListAPIView):
     serializer_class = PostSerializer
-
     def get_queryset(self):
         user = get_object_or_404(User , username=self.kwargs['username'])
         return Post.objects.filter(author=user).all()
