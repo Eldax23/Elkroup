@@ -8,7 +8,6 @@ from .models import Post
 
 
 # Feedview (get the posts of the people you're currently following)
-
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
 
@@ -25,3 +24,10 @@ class FeedView(generics.ListAPIView):
         # get the posts of those people
         posts = Post.objects.filter(author__in=followed_users)
         return posts
+
+
+
+# DiscoverView (get all posts whether u follow them or not)
+class DiscoverView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
