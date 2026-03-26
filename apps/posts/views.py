@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics , status
+from rest_framework import generics , status , permissions
 from rest_framework.response import Response
 from .serializers import PostSerializer , CreatePostSerializer
 from .models import Post
@@ -45,6 +45,12 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
         
         return PostSerializer
     
+    # def get_permissions(self):
+    #     if self.request.method == 'POST':
+    #         return [permissions.IsAuthenticated]
+        
+    #     return [permissions.AllowAny]
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -57,4 +63,10 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
-    
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+
