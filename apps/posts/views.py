@@ -6,7 +6,7 @@ from .models import Post
 
 
 from apps.users.models import User
-
+from .permissions import IsOwner
 
 # Create your views here.
 
@@ -74,7 +74,9 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    def get_permissions(self):
+        if self.request.method in ('PUT' , 'DELETE'):
+            return [permissions.IsAuthenticated() , IsOwner()]
 
 
 # get the posts of a specific user based on his username
