@@ -2,8 +2,8 @@ from django.shortcuts import render , get_object_or_404
 from rest_framework import generics , status , permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view , permission_classes
-from .serializers import PostSerializer , CreatePostSerializer
-from .models import Post , Like
+from .serializers import PostSerializer , CreatePostSerializer , CommentSerializer
+from .models import Post , Like , Comment
 
 
 from apps.users.models import User
@@ -111,3 +111,19 @@ def like_toggle(request , pk):
     # he didn't like this post and wants to like
     Like.objects.create(user=request.user , post=post)
     return Response({"liked": True , "likes_count": post.likes_count} , status=status.HTTP_200_OK)
+
+
+
+# this view is responsible for creating comments
+# get the comments on a specific post
+class CommentListCreateView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CommentSerializer
+    def get_queryset(self):
+        return Comment.objects.filter(post_id=self.kwargs['pk']).all()
+    
+    def perform_create(self, serializer):
+        # just checking if the post actually exists before creating a comment
+        post = get_object_or_404(Post , pk=self.kwargs['pk'])
+        serializer.save(user=self.request.user , post=self.post)
+        
