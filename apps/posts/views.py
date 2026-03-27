@@ -136,6 +136,6 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ('PUT' , 'DELETE'):
-            return [permissions.IsAuthenticated , IsOwner()]
+            return [permissions.IsAuthenticated() , IsOwner()]
         
         return [permissions.IsAuthenticated()]
