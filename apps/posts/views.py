@@ -125,7 +125,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # just checking if the post actually exists before creating a comment
         post = get_object_or_404(Post , pk=self.kwargs['pk'])
-        serializer.save(user=self.request.user , post=self.post)
+        serializer.save(user=self.request.user , post=post)
         
 
 

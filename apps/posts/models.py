@@ -36,10 +36,10 @@ class Like(models.Model):
 # and the date it was created
 class Comment(models.Model):
     content = models.TextField()
-    user = models.ForeignKey(User , on_delete=models.CASCADE , related_name='comments')
+    author = models.ForeignKey(User , on_delete=models.CASCADE , related_name='comments')
     post = models.ForeignKey(Post , on_delete=models.CASCADE , related_name='comments')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} commented on post {self.post_id}"
+        return f"{self.author.username} commented on post {self.post_id}"
 
