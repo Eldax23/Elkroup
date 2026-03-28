@@ -8,6 +8,7 @@ from .models import Post , Like , Comment
 
 from apps.users.models import User
 from .permissions import IsOwner
+from .pagination import FeedPagination
 
 # Create your views here.
 
@@ -17,7 +18,7 @@ from .permissions import IsOwner
 # Feedview (get the posts of the people you're currently following)
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
-
+    pagination_class = FeedPagination
     def get_queryset(self):
         # get the currently logged in user
         user = self.request.user
@@ -36,6 +37,7 @@ class FeedView(generics.ListAPIView):
 # DiscoverView (get all posts whether u follow them or not)
 class DiscoverView(generics.ListAPIView):
     serializer_class = PostSerializer
+    pagination_class = FeedPagination
     queryset = Post.objects.all()
 
 
@@ -43,6 +45,7 @@ class DiscoverView(generics.ListAPIView):
 # --------------------------- POSTS -----------------------------------
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
+    pagination_class = FeedPagination
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreatePostSerializer
@@ -83,6 +86,7 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 # get the posts of a specific user based on his username
 class UserPostsView(generics.ListAPIView):
     serializer_class = PostSerializer
+    pagination_class = FeedPagination
     def get_queryset(self):
         user = get_object_or_404(User , username=self.kwargs['username'])
         return Post.objects.filter(author=user).all()
