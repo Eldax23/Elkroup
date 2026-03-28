@@ -44,8 +44,19 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    replies = serializers.SerializerMethodField()
     class Meta:
         model = Comment
-        fields = ('id',  'author' , 'content' , 'created_at')
-        read_only_fields = ('id' , 'user' , 'created_at')
+        fields = ('id',  'author' , 'content' , 'replies' , 'parent' , 'created_at')
+        read_only_fields = ('id' , 'author' , 'created_at')
+
+    def get_replies(self , obj):
+        # only get replies for top-level comments
+        if obj.parent is None:
+            return CommentSerializer(obj.replies.all() , many=True , context=self.context).data
+        
+        return []
+
+
+
 

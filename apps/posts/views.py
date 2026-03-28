@@ -124,12 +124,12 @@ class CommentListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CommentSerializer
     def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['pk']).all()
+        return Comment.objects.filter(post_id=self.kwargs['pk'] , parent=None).all()
     
     def perform_create(self, serializer):
         # just checking if the post actually exists before creating a comment
         post = get_object_or_404(Post , pk=self.kwargs['pk'])
-        serializer.save(user=self.request.user , post=post)
+        serializer.save(author=self.request.user , post=post)
         
 
 
