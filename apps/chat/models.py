@@ -24,3 +24,20 @@ class Room(models.Model):
     created_by = models.ForeignKey(User , on_delete=models.SET_NULL , related_name="created_chats")
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+class Message:
+
+    content = models.TextField()
+
+    # the user who sent this message
+    # user sends (many) messages (one-to-many)
+    sender = models.ForeignKey(User , on_delete=models.CASCADE , related_name='sent_messages')
+
+    # the room this message got sent in
+    room = models.ForeignKey(Room , on_delete=models.CASCADE , related_name='messages')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
