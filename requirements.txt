@@ -3,5 +3,6 @@ djangorestframework
 django-cors-headers
 djangorestframework-simplejwt
 Pillow
+redis
 channels
 channels-redis
