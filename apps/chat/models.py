@@ -14,21 +14,21 @@ class Room(models.Model):
 
     # contains the people who participates in this convo (could be 2 or more)
     # user -> many convos , convo -> many users (many to many)
-    participants = models.ManyToManyField(User , blank=True , related_name="chat_rooms")
+    members = models.ManyToManyField(User , blank=True , related_name="chat_rooms")
 
 
     # clarifies whether this is a groupchat or a dm
     is_dm = models.BooleanField(default=False)
 
     # denotes the user who created this room (conversation)
-    created_by = models.ForeignKey(User , on_delete=models.SET_NULL , related_name="created_chats")
+    created_by = models.ForeignKey(User , on_delete=models.SET_NULL , null=True , related_name="created_chats")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 
 
-class Message:
+class Message(models.Model):
 
     content = models.TextField()
 
