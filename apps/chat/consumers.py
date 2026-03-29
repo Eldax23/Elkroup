@@ -37,6 +37,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     
+    # triggers when disconnected from the websocket
+    async def disconnect(self, code):
+        if hasattr(self,'room_group'):
+            await self.send(json.dumps({
+                'type': 'disconnect',
+                'user_id': self.user.id,
+                'username': self.user.username,
+                'online': False
+            }))
+            await self.channel_layer.group_discard(self.room_group , self.channel_name)
 
 
 
