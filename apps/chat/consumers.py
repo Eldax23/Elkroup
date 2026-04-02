@@ -67,7 +67,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'id': message.id,
                 'content': message.content,
-                'sender': self.user,
+                'sender': self.user.username,
                 'created_at':message.created_at 
             })
 
@@ -81,10 +81,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             })
         
         elif msg_type == 'edit':
-            msg_id = data.get['message_id']
-            newMessage = data.get['new_message']
+            msg_id = data.get('message_id')
+            newMessage = data.get('new_message')
             if msg_id:
-                msg = await edit_message_in_db(msg_id=msg_id , newMessage=newMessage)
+                msg = await self.edit_message_in_db(msg_id=msg_id , newMessage=newMessage)
                 # triggers the message_edited event handler
                 await self.channel_layer.group_send(self.room_group , {
                     'type': 'message_edited',
@@ -92,10 +92,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'new_message': newMessage
                 })
 
-        elif msg_type == 'delete':
-            msg_id = data.get['message_id']
+        elif msg_type == 'deleted':
+            msg_id = data.get('message_id')
             if msg_id:
-                msg - await delete_message_in_db(msg_id=msg_id)
+                msg - await self.delete_message_in_db(msg_id=msg_id)
                 # triggers the message_deleted event handler
                 await self.channel_layer.group_send(self.room_group , {
                     'type': 'message_deleted',
@@ -104,37 +104,74 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
 
+        
+# ----------------------------- event handlers ----------------------------
 
-# check whether a user a member of this room or no
-@database_sync_to_async
-def is_member(self):
-    return Room.objects.filter(pk=self.room_id , members=self.user).exists()
+    async def chat_message(self , event):
+     await self.send(text_data=json.dumps({
+        'type': 'message',
+        'id': event['id'],
+        'content': event['content'],
+        'sender': event['sender'],
+        'created_at': event['created_at']
+     }))
 
-@database_sync_to_async
-def save_message_in_db(self , content):
+
+    async def typing_indicator(self , event):
+     await self.send(text_data = json.dumps({
+        'type': 'typing',
+        'user_id': event['user_id'],
+        'username': event['username'],
+        'is_typing': event['is_typing']
+     }))
+
+
+
+    async def message_edited(self , event):
+     await self.send(text_data=json.dumps({
+        'type': 'edit',
+        'message_id': event['message_id'],
+        'new_message': event['new_message']
+     }))
+
+
+    async def message_deleted(self , event):
+        await self.send(text_data=json.dumps({
+        'type': 'delete',
+        'message_id': event['message_id'],
+        }))
+
+
+    # check whether a user a member of this room or no
+    @database_sync_to_async
+    def is_member(self):
+        return Room.objects.filter(pk=self.room_id , members=self.user).exists()
+
+    @database_sync_to_async
+    def save_message_in_db(self , content):
     # get the current room
-    curr_room = Room.objects.get(pk=self.room_id)
+        curr_room = Room.objects.get(pk=self.room_id)
 
-    return Message.objects.create(room=curr_room , sender=self.user , content=content)
+        return Message.objects.create(room=curr_room , sender=self.user , content=content)
 
 
-@database_sync_to_async
-def edit_message_in_db(self , msg_id , newMessage):
-    try: 
-        message = Message.object.filter(pk=msg_id , sender=self.user)
-        message.content = newMessage
-        message.save()
-        return True
-    except Message.DoesNotExist:
-        return False
+    @database_sync_to_async
+    def edit_message_in_db(self , msg_id , newMessage):
+        try: 
+            message = Message.objects.get(pk=msg_id , sender=self.user)
+            message.content = newMessage
+            message.save()
+            return True
+        except Message.DoesNotExist:
+            return False
 
-@database_sync_to_async
-def delete_message_in_db(self , msg_id):
-    try:
-        message = Message.objects.filter(pk=msg_id , sender=self.user)
-        message.delete()
-        return True
-    except Message.DoesNotExist:
-        return False
+    @database_sync_to_async
+    def delete_message_in_db(self , msg_id):
+        try:
+            message = Message.objects.get(pk=msg_id , sender=self.user)
+            message.delete()
+            return True
+        except Message.DoesNotExist:
+            return False
     
 
