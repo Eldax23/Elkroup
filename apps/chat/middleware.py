@@ -24,7 +24,7 @@ class JWTAuthMiddleware(BaseMiddleware):
         token = params.get('token' , [None])[0]
 
         # if no token provided then the user will be treated as anonymous
-        self.scope['user'] = AnonymousUser()
+        scope['user'] = AnonymousUser()
 
         if token:
             try:

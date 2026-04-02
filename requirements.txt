@@ -6,3 +6,4 @@ Pillow
 redis
 channels
 channels-redis
+daphne
