@@ -29,23 +29,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         # return json response when successfully connected
-        await self.send(json.dumps({
-            'type': 'connected',
+        # triggers the presence event handler
+        await self.channel_layer.group_send(self.room_group , {
+            'type': 'presence',
             'user_id': self.user.id,
             'username': self.user.username,
             'online': True
-        }))
+        })
 
     
     # triggers when disconnected from the websocket
+    # which also triggers the presence event handler
     async def disconnect(self, code):
         if hasattr(self,'room_group'):
-            await self.send(json.dumps({
-                'type': 'disconnect',
+            await self.channel_layer.group_send(self.room_group , {
+                'type': 'presence',
                 'user_id': self.user.id,
                 'username': self.user.username,
                 'online': False
-            }))
+            })
             await self.channel_layer.group_discard(self.room_group , self.channel_name)
 
 
@@ -139,6 +141,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
         'type': 'delete',
         'message_id': event['message_id'],
+        }))
+
+    async def presence(self , event):
+        await self.send(text_data=json.dumps({
+            'type': 'presence',
+            'user_id': event['user_id'],
+            'username': event['username'],
+            'online': event['online']
         }))
 
 
