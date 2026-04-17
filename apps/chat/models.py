@@ -25,6 +25,26 @@ class Room(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Room: {self.name}" if self.name else f"DM Room {self.pk}"
+
+    @classmethod
+    def get_or_create_dm(cls , user_a , user_b):
+        # check if there is an existing room between two users
+        # if not , then create one
+
+        rooms = cls.objects.filter(is_dm=True , members=user_a).filter(members=user_b)
+        if rooms.exists():
+            return rooms.first()
+        
+        room = cls.objects.create(is_dm=True , created_by=user_a)
+        room.members.add(user_a , user_b)
+
+        return room
+        
+
+
+
 
 
 
