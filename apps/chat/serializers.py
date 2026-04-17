@@ -20,3 +20,5 @@ class MessageSerializer(serializers.ModelSerializer):
         read_only_fields = ('id' , 'sender' , 'created_at')
 
 
+class CreateDMSerializer(serializers.Serializer):
+    username = serializers.CharField()
