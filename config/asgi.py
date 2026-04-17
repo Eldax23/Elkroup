@@ -25,7 +25,6 @@ from apps.chat.routing import websocket_urlpatterns
 
 
 
-application = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
