@@ -35,12 +35,12 @@ class Room(models.Model):
 
         rooms = cls.objects.filter(is_dm=True , members=user_a).filter(members=user_b)
         if rooms.exists():
-            return rooms.first()
+            return rooms.first() , False
         
         room = cls.objects.create(is_dm=True , created_by=user_a)
         room.members.add(user_a , user_b)
 
-        return room
+        return room , True
         
 
 
