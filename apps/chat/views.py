@@ -37,7 +37,7 @@ class MessageHistoryView(generics.ListAPIView):
 @permission_classes([permissions.IsAuthenticated])
 def create_dm(request):
     # start or retrieve a dm between the user who sent this request and another user
-    serializer = CreateDMSerializer
+    serializer = CreateDMSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     # the other user 
     target = get_object_or_404(User , username=serializer.validated_data['username'])
@@ -52,4 +52,3 @@ def create_dm(request):
         RoomSerializer(room , context={'request':request}).data,
         status=201 if created else 200
     )
-
