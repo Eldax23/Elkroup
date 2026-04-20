@@ -2,6 +2,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Room , Message
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -13,8 +16,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # if he is not authenticated  , stop the connection
         if not self.user.is_authenticated:
+            logger.warning(f"Connection rejected: anonymous user attempting to join room")
             await self.close()
             return
+
+        logger.info(f"User {self.user.id} ({self.user.username}) connecting to chat")
         
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.room_group = f'room__{self.room_id}'
@@ -52,12 +58,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
+        try:
+            data = json.loads(text_data)
+        except json.JSONDecodeError:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'detail': 'Invalid JSON payload.'
+            }))
+            return
         # get type of message , chat_message , edit_message , delete_message
         msg_type = data.get('type')
 
         if msg_type == 'message':
-            content = data.get('content' , None).strip()
+            content = (data.get('content') or '').strip()
 
             if not content:
                 # user sent an empty message
@@ -70,7 +83,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'id': message.id,
                 'content': message.content,
                 'sender': self.user.username,
-                'created_at':message.created_at 
+                'created_at': message.created_at.isoformat()
             })
 
         elif msg_type == 'typing':
@@ -97,7 +110,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif msg_type == 'deleted':
             msg_id = data.get('message_id')
             if msg_id:
-                msg - await self.delete_message_in_db(msg_id=msg_id)
+                await self.delete_message_in_db(msg_id=msg_id)
                 # triggers the message_deleted event handler
                 await self.channel_layer.group_send(self.room_group , {
                     'type': 'message_deleted',
