@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elkroup Chat Tester</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-2: #0ea5e9;
+      --danger: #b91c1c;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 10% 20%, #dff6f3 0%, #f6f8fb 45%),
+                  radial-gradient(circle at 90% 10%, #e0f2fe 0%, #f6f8fb 35%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 940px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.8rem;
+    }
+
+    p {
+      margin-top: 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input, textarea, button {
+      font: inherit;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px;
+      outline: none;
+      background: white;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      color: white;
+      background: var(--accent);
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    button.alt {
+      background: #0369a1;
+    }
+
+    button.warn {
+      background: var(--danger);
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .status b {
+      color: #111827;
+    }
+
+    .messages {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-height: 280px;
+      max-height: 360px;
+      overflow: auto;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .msg {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #edf7f6;
+      margin-bottom: 8px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .msg small {
+      display: block;
+      color: #4b5563;
+      margin-top: 4px;
+    }
+
+    .sys {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 70px;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    .help {
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap card">
+    <h1>Elkroup Browser Chat Tester</h1>
+    <p>Open this page in two browser tabs. Login with different users in each tab, connect to the same room, then send messages.</p>
+
+    <div class="grid">
+      <div>
+        <label for="email">Login Email</label>
+        <input id="email" type="email" placeholder="alice@example.com" />
+      </div>
+      <div>
+        <label for="username">Username</label>
+        <input id="username" placeholder="alice" />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="StrongPass123!" />
+      </div>
+      <div>
+        <label for="roomId">Room ID</label>
+        <input id="roomId" type="number" min="1" placeholder="2" />
+      </div>
+      <div>
+        <label for="dmWith">Create/Get DM with username (optional)</label>
+        <input id="dmWith" placeholder="bob" />
+      </div>
+    </div>
+
+    <div class="row">
+      <button id="loginBtn">Login</button>
+      <button id="dmBtn" class="alt">Create/Get DM</button>
+      <button id="connectBtn" class="alt">Connect WebSocket</button>
+      <button id="disconnectBtn" class="warn">Disconnect</button>
+    </div>
+
+    <div class="status" id="status">Status: <b>Idle</b></div>
+
+    <textarea id="messageText" placeholder='Type message text. Example: hello from alice'></textarea>
+    <div class="row">
+      <button id="sendBtn">Send Message</button>
+      <button id="typingBtn" class="alt">Send Typing Event</button>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="help">
+      Tip: if this is opened on <b>http://127.0.0.1:8000/chat-test/</b>, WebSocket uses the same host automatically.
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const messagesEl = document.getElementById('messages');
+
+    const emailEl = document.getElementById('email');
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const roomIdEl = document.getElementById('roomId');
+    const dmWithEl = document.getElementById('dmWith');
+    const messageTextEl = document.getElementById('messageText');
+
+    let accessToken = '';
+    let ws = null;
+
+    function setStatus(text) {
+      statusEl.innerHTML = 'Status: <b>' + text + '</b>';
+    }
+
+    function addSystem(text) {
+      const line = document.createElement('div');
+      line.className = 'sys';
+      line.textContent = '[system] ' + text;
+      messagesEl.appendChild(line);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addMessage(payload) {
+      const line = document.createElement('div');
+      line.className = 'msg';
+      const sender = payload.sender || payload.username || 'unknown';
+      const body = payload.content || JSON.stringify(payload);
+      line.innerHTML = '<strong>' + sender + '</strong>: ' + body;
+      if (payload.created_at) {
+        const info = document.createElement('small');
+        info.textContent = 'at ' + payload.created_at;
+        line.appendChild(info);
+      }
+      messagesEl.appendChild(line);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function login() {
+      const email = emailEl.value.trim();
+      const username = usernameEl.value.trim();
+      const password = passwordEl.value;
+      if (!email || !password) {
+        alert('Enter email and password first.');
+        return;
+      }
+
+      setStatus('Logging in...');
+      const res = await fetch('/api/auth/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus('Login failed');
+        addSystem('Login error: ' + JSON.stringify(data));
+        return;
+      }
+
+      accessToken = data.access;
+      setStatus('Logged in as ' + (username || email));
+      addSystem('Login success. Token stored in memory.');
+    }
+
+    async function createDm() {
+      if (!accessToken) {
+        alert('Login first.');
+        return;
+      }
+
+      const target = dmWithEl.value.trim();
+      if (!target) {
+        alert('Enter username in DM field.');
+        return;
+      }
+
+      setStatus('Creating/getting DM...');
+      const res = await fetch('/api/rooms/dm/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + accessToken
+        },
+        body: JSON.stringify({ username: target })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus('DM creation failed');
+        addSystem('DM error: ' + JSON.stringify(data));
+        return;
+      }
+
+      roomIdEl.value = data.id;
+      setStatus('DM ready, room id = ' + data.id);
+      addSystem('Using room id ' + data.id);
+    }
+
+    function connectWs() {
+      if (!accessToken) {
+        alert('Login first.');
+        return;
+      }
+
+      const roomId = roomIdEl.value.trim();
+      if (!roomId) {
+        alert('Enter room id first or use Create/Get DM.');
+        return;
+      }
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        addSystem('Already connected.');
+        return;
+      }
+
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const wsUrl = protocol + '://' + window.location.host + '/ws/chat/' + roomId + '/?token=' + encodeURIComponent(accessToken);
+
+      setStatus('Connecting WebSocket...');
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        setStatus('Connected to room ' + roomId);
+        addSystem('WebSocket connected.');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type === 'message') {
+            addMessage(payload);
+          } else {
+            addSystem('event: ' + JSON.stringify(payload));
+          }
+        } catch (err) {
+          addSystem('raw: ' + event.data);
+        }
+      };
+
+      ws.onclose = (event) => {
+        setStatus('Disconnected (' + event.code + ')');
+        addSystem('Socket closed. code=' + event.code + ' reason=' + event.reason);
+      };
+
+      ws.onerror = () => {
+        setStatus('WebSocket error');
+        addSystem('WebSocket error. Check server logs if needed.');
+      };
+    }
+
+    function disconnectWs() {
+      if (ws) {
+        ws.close();
+      }
+    }
+
+    function sendMessage() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('Connect WebSocket first.');
+        return;
+      }
+
+      const text = messageTextEl.value.trim();
+      if (!text) {
+        alert('Type a message first.');
+        return;
+      }
+
+      ws.send(JSON.stringify({ type: 'message', content: text }));
+      messageTextEl.value = '';
+    }
+
+    function sendTyping() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('Connect WebSocket first.');
+        return;
+      }
+
+      ws.send(JSON.stringify({ type: 'typing' }));
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('dmBtn').addEventListener('click', createDm);
+    document.getElementById('connectBtn').addEventListener('click', connectWs);
+    document.getElementById('disconnectBtn').addEventListener('click', disconnectWs);
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('typingBtn').addEventListener('click', sendTyping);
+  </script>
+</body>
+</html>
