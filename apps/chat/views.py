@@ -52,3 +52,27 @@ def create_dm(request):
         RoomSerializer(room , context={'request':request}).data,
         status=201 if created else 200
     )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def create_group(request):
+    # extract group name from the body of the request
+    name = request.data.get('name' , '').strip()
+    # extract usernames of members in the chat
+    usernames = request.data.get('members' , [])
+
+    if not name:
+        return Response({'detail': 'you must provide a group name'} , status=status.HTTP_400_BAD_REQUEST)
+
+    
+    # get the instances of these users from the db
+    users = User.objects.filter(username__in=usernames)
+
+    # create a room for them
+    room = Room.objects.create(name=name , is_dm=False , created_by=request.user)
+
+    room.members.add(request.user , *users)
+
+    return Response(RoomSerializer(room , context={'request':request}).data , status=status.HTTP_201_CREATED)
+
