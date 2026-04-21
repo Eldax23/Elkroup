@@ -2,6 +2,7 @@ django>=4.2
 djangorestframework
 django-cors-headers
 djangorestframework-simplejwt
+python-dotenv
 Pillow
 redis
 channels
