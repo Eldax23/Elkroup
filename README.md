@@ -39,6 +39,7 @@ A backend API for a social media platform built with Django. Real-time chat, a f
 
 ### Real-time Chat
 - DMs between two users
+- Group chat for multiple users
 - Group chat rooms
 - Typing indicators
 - Online presence (join/leave events)
@@ -255,6 +256,7 @@ Two access levels are used across all endpoints:
 |---|---|---|---|
 | `GET` | `/api/rooms/` | `PRIVATE` | List all rooms you're part of |
 | `POST` | `/api/rooms/dm/` | `PRIVATE` | Start or retrieve a DM — body: `{ "username": "bob" }` |
+| `POST` | `/api/rooms/group/` | `PRIVATE` | Start or retrieve a Group — body: `{ "name": "the groupchat" , "members": [alice , bob , james] }` |
 | `GET` | `/api/rooms/:id/messages/` | `PRIVATE` | Paginated message history for a room |
 
 ---
